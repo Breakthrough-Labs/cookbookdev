@@ -24,6 +24,7 @@ const saveContracts = (contractAddress, files) => {
     fs.mkdirSync(`cookbook/${contractAddress}`);
   }
   for (const filename of Object.keys(files)) {
+    console.log(filename);
     fs.writeFileSync(
       `cookbook/${contractAddress}/${filename}`,
       files[filename].content
@@ -32,10 +33,16 @@ const saveContracts = (contractAddress, files) => {
 };
 
 const main = async () => {
-  const contractAddress = process.argv[2];
-  const id = await getGistId(contractAddress);
-  const files = await retrieveGistFiles(id);
-  saveContracts(contractAddress, files);
+  try {
+    const contractAddress = process.argv[2];
+    const id = await getGistId(contractAddress);
+    const files = await retrieveGistFiles(id);
+    saveContracts(contractAddress, files);
+  } catch (error) {
+    console.error(
+      `Cooking failed: are you sure the ${process.argv[2]} recipe exists?`
+    );
+  }
 };
 
 main();
