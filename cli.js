@@ -20,18 +20,24 @@ const saveContracts = (contractAddress, mainContract, files) => {
   if (!fs.existsSync("contracts")) {
     fs.mkdirSync("contracts");
   }
+
+  // Handle single file contracts
+  const keys = Object.keys(files);
+  if (keys.length === 1) {
+    const savePath = `contracts/${keys[0]}`;
+    fs.writeFileSync(savePath, files[keys[0]].content);
+    return;
+  }
+
+  // Handle contracts with dependencies
   if (!fs.existsSync(`contracts/${contractAddress}`)) {
     fs.mkdirSync(`contracts/${contractAddress}`);
   }
   if (!fs.existsSync(`contracts/${contractAddress}/dependencies`)) {
     fs.mkdirSync(`contracts/${contractAddress}/dependencies`);
   }
-  for (const filename of Object.keys(files)) {
-    let savePath = `contracts/${contractAddress}/dependencies/${filename}`;
-    console.log(mainContract, filename);
-    if (mainContract.includes(filename)) {
-      savePath = `contracts/${contractAddress}/${filename}`;
-    }
+  for (const filename of keys) {
+    const savePath = `contracts/${contractAddress}/dependencies/${filename}`;
     fs.writeFileSync(savePath, files[filename].content);
   }
 };
