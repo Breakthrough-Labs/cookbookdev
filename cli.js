@@ -16,6 +16,12 @@ const retrieveGistFiles = async (gistId) => {
   return res.data.files;
 };
 
+const getFilename = (path) => {
+  const parts = path.split("/");
+  const filename = parts[parts.length - 1];
+  return filename;
+};
+
 // Updates the imports in each file to match the cookbookdev file structure.
 // Gist does not allow directories, so the structure is flattened.
 const updateImports = (contract, isMain) => {
@@ -24,11 +30,10 @@ const updateImports = (contract, isMain) => {
     .filter((line) => line.substring(0, 6) === "import");
   for (const line of imports) {
     const path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
-    const parts = path.split("/");
-    const fileName = parts[parts.length - 1];
+    const filename = getFilename(path);
     contract = contract.replace(
       path,
-      `${isMain ? "./dependencies/" : "./"}${fileName}`
+      `${isMain ? "./dependencies/" : "./"}${filename}`
     );
   }
   return contract;
@@ -44,7 +49,10 @@ const saveContracts = (contractAddress, mainContract, files) => {
 
   for (const filename of keys) {
     const oldFile = files[filename];
-    const newFile = updateImports(oldFile.content, filename === mainContract);
+    const newFile = updateImports(
+      oldFile.content,
+      filename === getFilename(mainContract)
+    );
     updatedFiles[filename] = { content: newFile };
   }
 
@@ -64,7 +72,7 @@ const saveContracts = (contractAddress, mainContract, files) => {
   }
   for (const filename of keys) {
     let savePath = "";
-    if (filename === mainContract) {
+    if (filename === getFilename(mainContract)) {
       savePath = `contracts/${contractAddress}/${filename}`;
     } else {
       savePath = `contracts/${contractAddress}/dependencies/${filename}`;
@@ -86,6 +94,9 @@ const main = async () => {
     const { gistId, mainContract } = await getContractInfo(contractAddress);
     const files = await retrieveGistFiles(gistId);
     saveContracts(contractAddress, mainContract, files);
+    console.log(
+      `Cooking complete! ${contractAddress} has been added to \\contracts`
+    );
   } catch (error) {
     console.log(error);
     console.error(
