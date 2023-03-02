@@ -75,14 +75,21 @@ const saveContracts = (contractAddress, mainContract, files) => {
 
 const main = async () => {
   try {
-    const contractAddress = process.argv[2];
+    const command = process.argv[2];
+    if (command !== "i" && command !== "install") {
+      return console.error(
+        `Cooking failed: ${command} is not recognized as a command. Try cookbookdev install`
+      );
+    }
+
+    const contractAddress = process.argv[3];
     const { gistId, mainContract } = await getContractInfo(contractAddress);
     const files = await retrieveGistFiles(gistId);
     saveContracts(contractAddress, mainContract, files);
   } catch (error) {
     console.log(error);
     console.error(
-      `Cooking failed: are you sure ${process.argv[2]} is the correct address?`
+      `Cooking failed: are you sure ${process.argv[3]} is the correct address?`
     );
   }
 };
