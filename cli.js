@@ -16,13 +16,39 @@ const retrieveGistFiles = async (gistId) => {
   return res.data.files;
 };
 
+// Updates the imports in each file to match the cookbookdev file structure.
+// Gist does not allow directories, so the structure is flattened.
+const updateImports = (contract, isMain) => {
+  const imports = contract
+    .split("\n")
+    .filter((line) => line.substring(0, 6) === "import");
+  for (const line of imports) {
+    const path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
+    const parts = path.split("/");
+    const fileName = parts[parts.length - 1];
+    contract = contract.replace(
+      path,
+      `${isMain ? "./dependencies/" : "./"}${fileName}`
+    );
+  }
+  return contract;
+};
+
 const saveContracts = (contractAddress, mainContract, files) => {
   if (!fs.existsSync("contracts")) {
     fs.mkdirSync("contracts");
   }
 
-  // Handle single file contracts
+  const updatedFiles = {};
   const keys = Object.keys(files);
+
+  for (const filename of keys) {
+    const oldFile = files[filename];
+    const newFile = updateImports(oldFile.content, filename === mainContract);
+    updatedFiles[filename] = { content: newFile };
+  }
+
+  // Handle single file contracts
   if (keys.length === 1) {
     const savePath = `contracts/${keys[0]}`;
     fs.writeFileSync(savePath, files[keys[0]].content);
@@ -37,8 +63,13 @@ const saveContracts = (contractAddress, mainContract, files) => {
     fs.mkdirSync(`contracts/${contractAddress}/dependencies`);
   }
   for (const filename of keys) {
-    const savePath = `contracts/${contractAddress}/dependencies/${filename}`;
-    fs.writeFileSync(savePath, files[filename].content);
+    let savePath = "";
+    if (filename === mainContract) {
+      savePath = `contracts/${contractAddress}/${filename}`;
+    } else {
+      savePath = `contracts/${contractAddress}/dependencies/${filename}`;
+    }
+    fs.writeFileSync(savePath, updatedFiles[filename].content);
   }
 };
 
