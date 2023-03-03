@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-1. npm install cookbookdev --global
+1. run `npm install cookbookdev --global`
 2. find a contract on www.cookbook.dev
 3. run `cookbookdev install {address}`
 
@@ -12,6 +12,8 @@
 
 ## Examples
 
+- `cookbookdev i simple-token`
+- `cookbookdev install simple-token`
 - `npx cookbookdev i simple-token`
 - `npx cookbookdev install simple-token`
 - `npx cookbookdev install Azuki-ERC721A-NFT-Sale`
