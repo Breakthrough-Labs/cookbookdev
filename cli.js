@@ -25,9 +25,22 @@ const getFilename = (path) => {
 // Updates the imports in each file to match the cookbookdev file structure.
 // Gist does not allow directories, so the structure is flattened.
 const updateImports = (contract, isMain) => {
-  const imports = contract
-    .split("\n")
-    .filter((line) => line.substring(0, 6) === "import");
+  let adjustedFile = contract.split("\n");
+
+  let i = 0;
+  for (const line of adjustedFile) {
+    if (line.replaceAll(" ", "").substring(0, 2) === "//")
+      adjustedFile.splice(i, i);
+    i++;
+  }
+  adjustedFile = adjustedFile.join("\n");
+  const importIndexes = [
+    ...adjustedFile.matchAll(new RegExp("import ", "gi")),
+  ].map((a) => a.index);
+  const imports = importIndexes.map((index) =>
+    adjustedFile.substring(index, adjustedFile.indexOf(";", index))
+  );
+
   for (const line of imports) {
     let path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
     if (!path) {
