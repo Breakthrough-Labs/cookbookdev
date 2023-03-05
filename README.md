@@ -8,7 +8,7 @@
 
 ## Commands
 
-`cookbookdev install {address}` or `cookbookdev i {address}` install any contract you find on www.cookbook.dev
+`cookbookdev install {address}` or `cookbookdev i {address}`: install any contract you find on www.cookbook.dev
 
 ## Examples
 

@@ -29,7 +29,10 @@ const updateImports = (contract, isMain) => {
     .split("\n")
     .filter((line) => line.substring(0, 6) === "import");
   for (const line of imports) {
-    const path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
+    let path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
+    if (!path) {
+      path = line.substring(line.indexOf("'") + 1, line.lastIndexOf("'"));
+    }
     const filename = getFilename(path);
     contract = contract.replace(
       path,
