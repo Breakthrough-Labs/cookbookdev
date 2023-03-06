@@ -55,7 +55,7 @@ const updateImports = (contract, isMain) => {
   return contract;
 };
 
-const saveContracts = (contractAddress, mainContract, files) => {
+const saveContracts = (contractAddress, mainFilename, files) => {
   if (!fs.existsSync("contracts")) {
     fs.mkdirSync("contracts");
   }
@@ -65,10 +65,7 @@ const saveContracts = (contractAddress, mainContract, files) => {
 
   for (const filename of keys) {
     const oldFile = files[filename];
-    const newFile = updateImports(
-      oldFile.content,
-      filename === getFilename(mainContract)
-    );
+    const newFile = updateImports(oldFile.content, filename === mainFilename);
     updatedFiles[filename] = { content: newFile };
   }
 
@@ -88,7 +85,7 @@ const saveContracts = (contractAddress, mainContract, files) => {
   }
   for (const filename of keys) {
     let savePath = "";
-    if (filename === getFilename(mainContract)) {
+    if (filename === mainFilename) {
       savePath = `contracts/${contractAddress}/${filename}`;
     } else {
       savePath = `contracts/${contractAddress}/dependencies/${filename}`;
@@ -109,9 +106,13 @@ const main = async () => {
     const contractAddress = process.argv[3];
     const { gistId, mainContract } = await getContractInfo(contractAddress);
     const files = await retrieveGistFiles(gistId);
-    saveContracts(contractAddress, mainContract, files);
+    saveContracts(contractAddress, getFilename(mainContract), files);
     console.log(
-      `Cooking complete! ${contractAddress} has been added to \\contracts`
+      `
+Cooking complete! ${contractAddress} has been added to \\contracts
+
+Visit https://www.cookbook.dev for more contracts!
+`
     );
   } catch (error) {
     console.log(error);
