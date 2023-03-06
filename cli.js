@@ -26,11 +26,11 @@ const getFilename = (path) => {
 // Gist does not allow directories, so the structure is flattened.
 const updateImports = (contract, isMain) => {
   let adjustedFile = contract.split("\n");
-
   let i = 0;
   for (const line of adjustedFile) {
-    if (line.replaceAll(" ", "").substring(0, 2) === "//")
-      adjustedFile.splice(i, i);
+    if (line.replaceAll(" ", "").substring(0, 2) === "//") {
+      adjustedFile.splice(i, 1);
+    }
     i++;
   }
   adjustedFile = adjustedFile.join("\n");
@@ -40,7 +40,6 @@ const updateImports = (contract, isMain) => {
   const imports = importIndexes.map((index) =>
     adjustedFile.substring(index, adjustedFile.indexOf(";", index))
   );
-
   for (const line of imports) {
     let path = line.substring(line.indexOf('"') + 1, line.lastIndexOf('"'));
     if (!path) {
