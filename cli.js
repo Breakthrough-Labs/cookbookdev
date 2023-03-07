@@ -2,6 +2,7 @@
 
 const axios = require("axios");
 const fs = require("fs");
+const prompts = require("prompts");
 
 const getContractInfo = async (contractAddress) => {
   const res = await axios.get(
@@ -54,7 +55,7 @@ const updateImports = (contract, isMain) => {
   return contract;
 };
 
-const saveContracts = (contractAddress, mainFilename, files) => {
+const saveContracts = async (contractAddress, mainFilename, files) => {
   if (!fs.existsSync("contracts")) {
     fs.mkdirSync("contracts");
   }
@@ -71,16 +72,38 @@ const saveContracts = (contractAddress, mainFilename, files) => {
   // Handle single file contracts
   if (keys.length === 1) {
     const savePath = `contracts/${keys[0]}`;
+    if (fs.existsSync(savePath)) {
+      const response = await prompts({
+        type: "confirm",
+        name: "value",
+        message: `${savePath} already exists. Do you want to overwrite it?`,
+        initial: false,
+      });
+      if (!response.value) {
+        return `Cooking cancelled. '${contractAddress}' was not saved.`;
+      }
+    }
     fs.writeFileSync(savePath, files[keys[0]].content);
-    return;
+    return `Cooking complete! '${contractAddress}' has been added to /contracts`;
   }
 
+  const contractDir = `contracts/${contractAddress}`;
   // Handle contracts with dependencies
-  if (!fs.existsSync(`contracts/${contractAddress}`)) {
-    fs.mkdirSync(`contracts/${contractAddress}`);
+  if (!fs.existsSync(contractDir)) {
+    fs.mkdirSync(contractDir);
+  } else {
+    const response = await prompts({
+      type: "confirm",
+      name: "value",
+      message: `${contractDir} already exists. Do you want to overwrite it?`,
+      initial: false,
+    });
+    if (!response.value) {
+      return `Cooking cancelled. '${contractAddress}' was not saved.`;
+    }
   }
-  if (!fs.existsSync(`contracts/${contractAddress}/dependencies`)) {
-    fs.mkdirSync(`contracts/${contractAddress}/dependencies`);
+  if (!fs.existsSync(`${contractDir}/dependencies`)) {
+    fs.mkdirSync(`${contractDir}/dependencies`);
   }
   for (const filename of keys) {
     let savePath = "";
@@ -91,6 +114,7 @@ const saveContracts = (contractAddress, mainFilename, files) => {
     }
     fs.writeFileSync(savePath, updatedFiles[filename].content);
   }
+  return `Cooking complete! '${contractAddress}' has been added to /contracts`;
 };
 
 const main = async () => {
@@ -105,18 +129,23 @@ const main = async () => {
     const contractAddress = process.argv[3];
     const { gistId, mainContract } = await getContractInfo(contractAddress);
     const files = await retrieveGistFiles(gistId);
-    saveContracts(contractAddress, getFilename(mainContract), files);
+    const response = await saveContracts(
+      contractAddress,
+      getFilename(mainContract),
+      files
+    );
     console.log(
       `
-Cooking complete! ${contractAddress} has been added to \\contracts
-
-Visit https://www.cookbook.dev for more contracts!
-`
+  ${response}
+  
+  Visit https://www.cookbook.dev for more contracts!
+      `
     );
   } catch (error) {
-    console.log(error);
     console.error(
-      `Cooking failed: are you sure ${process.argv[3]} is the correct address?`
+      `
+  Cooking failed: are you sure '${process.argv[3]}' is the correct address?
+      `
     );
   }
 };
