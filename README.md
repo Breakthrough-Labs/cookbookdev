@@ -1,4 +1,19 @@
-# Cookbook.dev helps you find any smart contract, and build your project faster.
+<p align="center">
+<br />
+<a href="https://www.cookbook.dev">
+  <img src="https://pbs.twimg.com/profile_images/1559352555758505985/_0NuqC2x_400x400.jpg" width="100" alt=""  />
+</a>
+<br />
+</p>
+<h1 align="center">Cookbook.dev</h1>
+<p align="center">
+<a href="https://www.npmjs.com/package/cookbookdev"><img src="https://img.shields.io/npm/v/cookbookdev?color=red&logo=npm" alt="npm version"/></a>
+<a href="https://discord.gg/WzsfPcfHrk"><img alt="Join our Discord!" src="https://img.shields.io/discord/999863895634231316?color=7289da&label=discord&logo=discord&style=flat"/></a>
+
+</p>
+<br />
+
+# Find any smart contract, build your project faster.
 
 ## Getting Started
 
