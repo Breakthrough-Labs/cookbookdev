@@ -11,7 +11,7 @@ const getContractInfo = async (contractAddress, isPlugin) => {
       },
     } : {}
   const res = await axios.get(
-    `https://simple-web3-api.herokuapp.com/cli/id/${contractAddress}`, options
+    `http://localhost:5001/cli/id/${contractAddress}`, options
   );
 
   return res.data;
@@ -132,7 +132,7 @@ const main = async () => {
     }
 
     const contractAddress = process.argv[3];
-    const isPlugin = process.argv[4] === 'plugin';
+    const isPlugin = process.argv[4] === '-plugin';
     const { gistId, mainContract } = await getContractInfo(contractAddress, isPlugin);
     const files = await retrieveGistFiles(gistId);
     const response = await saveContracts(
