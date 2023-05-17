@@ -132,8 +132,8 @@ const main = async () => {
     }
 
     const contractAddress = process.argv[3];
-    const isPlugin = process.argv[4];
-    const { gistId, mainContract } = await getContractInfo(contractAddress, !!isPlugin);
+    const isPlugin = process.argv[4] === 'plugin';
+    const { gistId, mainContract } = await getContractInfo(contractAddress, isPlugin);
     const files = await retrieveGistFiles(gistId);
     const response = await saveContracts(
       contractAddress,
