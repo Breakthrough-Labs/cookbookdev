@@ -4,9 +4,14 @@ const axios = require("axios");
 const fs = require("fs");
 const prompts = require("prompts");
 
-const getContractInfo = async (contractAddress) => {
+const getContractInfo = async (contractAddress, isPlugin) => {
+  let options = isPlugin ? {
+      headers: {
+        "vscode-plugin": "true",
+      },
+    } : {}
   const res = await axios.get(
-    `https://simple-web3-api.herokuapp.com/cli/id/${contractAddress}`
+    `https://simple-web3-api.herokuapp.com/cli/id/${contractAddress}`, options
   );
 
   return res.data;
@@ -127,7 +132,8 @@ const main = async () => {
     }
 
     const contractAddress = process.argv[3];
-    const { gistId, mainContract } = await getContractInfo(contractAddress);
+    const isPlugin = process.argv[4];
+    const { gistId, mainContract } = await getContractInfo(contractAddress, !!isPlugin);
     const files = await retrieveGistFiles(gistId);
     const response = await saveContracts(
       contractAddress,
