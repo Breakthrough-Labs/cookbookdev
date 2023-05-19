@@ -11,7 +11,7 @@ const getContractInfo = async (contractAddress, isPlugin) => {
       },
     } : {}
   const res = await axios.get(
-    `http://localhost:5001/cli/id/${contractAddress}`, options
+    `https://simple-web3-api.herokuapp.com/cli/id/${contractAddress}`, options
   );
 
   return res.data;
